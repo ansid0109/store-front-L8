@@ -1,24 +1,29 @@
-version: "3.7"
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: 'rabbitmq'
+
+  store-front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ansid0cker/bbuy-final-store-front:latest
+    container_name: 'store-front'
     restart: always
-    environment:
-      - "RABBITMQ_DEFAULT_USER=username"
-      - "RABBITMQ_DEFAULT_PASS=password"
     ports:
-      - 15672:15672
-      - 5672:5672
+      - 8080:8080
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://store-front:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 5
     networks:
       - backend_services
+    depends_on:
+      order-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+
   order-service:
-    image: ramymohamed/order-service-l8:latest
+    image: ansid0cker/bbuy-final-order-service:latest
     container_name: 'order-service'
     restart: always
     ports:
@@ -29,19 +34,39 @@ services:
       timeout: 10s
       retries: 5
     environment:
-      - ORDER_QUEUE_HOSTNAME=rabbitmq
-      - ORDER_QUEUE_PORT=5672
-      - ORDER_QUEUE_USERNAME=username
-      - ORDER_QUEUE_PASSWORD=password
-      - ORDER_QUEUE_NAME=orders
-      - ORDER_QUEUE_RECONNECT_LIMIT=3
+      - ORDER_TARGET_URL=http://makeline-service:3001/order
+      - ORDER_TARGET_TIMEOUT_MS=5000
+      - ORDER_TARGET_MAX_RETRIES=2
+      - ORDER_TARGET_RETRY_BASE_MS=200
     networks:
       - backend_services
     depends_on:
-      rabbitmq:
+      makeline-service:
         condition: service_healthy
+
+  makeline-service:
+    image: ansid0cker/bbuy-final-makeline-service:latest
+    container_name: 'makeline-service'
+    restart: always
+    ports:
+      - 3001:3001
+    healthcheck:
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://makeline-service:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - ORDER_DB_URI=mongodb://mongodb:27017
+      - ORDER_DB_NAME=orderdb
+      - ORDER_DB_COLLECTION_NAME=orders
+    networks:
+      - backend_services
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
   product-service:
-    image: ramymohamed/product-service-l8:latest
+    image: ansid0cker/bbuy-final-product-service:latest
     container_name: 'product-service'
     restart: always
     ports:
@@ -53,6 +78,21 @@ services:
       retries: 5
     networks:
       - backend_services
+
+  mongodb:
+    image: mongo:6.0.6
+    container_name: 'mongo'
+    restart: always
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - backend_services
+
 networks:
   backend_services:
     driver: bridge
