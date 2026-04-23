@@ -1,12 +1,16 @@
 <template>
-  <TopNav :cartItemCount="cartItemCount"/>
-  <router-view
-    :products="products"
-    :cartItems="cartItems"
-    @addToCart="addToCart"
-    @removeFromCart="removeFromCart"
-    @submitOrder="submitOrder"
-  ></router-view>
+  <div class="app-shell">
+    <TopNav :cartItemCount="cartItemCount" />
+    <main class="app-content">
+      <router-view
+        :products="products"
+        :cartItems="cartItems"
+        @addToCart="addToCart"
+        @removeFromCart="removeFromCart"
+        @submitOrder="submitOrder"
+      ></router-view>
+    </main>
+  </div>
 </template>
 
 <script>
@@ -108,175 +112,93 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@500;600&display=swap');
+
+:root {
+  --bb-blue: #0046be;
+  --bb-deep-blue: #00308f;
+  --bb-yellow: #ffe000;
+  --ink: #1f2937;
+  --muted: #566074;
+  --surface: #f3f5f9;
+  --card: #ffffff;
+  --line: #d7ddec;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-image: url('@/assets/algonquin.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed; /* Keeps the background in place when scrolling */
   margin: 0;
-  padding: 0;
+  background: linear-gradient(180deg, #f9fbff 0%, #f3f5f9 100%);
+  color: var(--ink);
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 120px;
 }
 
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #0a5620;
-  color: #fff;
-  padding: 1rem;
-  margin: 0;
+.app-shell {
+  min-height: 100vh;
 }
 
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-ul {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  margin: 0 1rem;
+.app-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 16px 32px;
 }
 
 a {
-  color: #fff;
+  color: var(--bb-blue);
   text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 button {
-  padding: 10px;
-  background-color: #005f8b;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--bb-yellow);
+  color: #111;
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
+  font-weight: 700;
   cursor: pointer;
-  height: 42px;
+  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.product-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+button:hover {
+  background: #ffe93d;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 41, 121, 0.14);
 }
 
-.product-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  margin: 1rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-.product-card img {
-  max-width: 100%;
-  margin-bottom: 1rem;
-}
-
-.product-card a {
-  text-decoration: none;
-  color: #333;
-}
-
-.product-card h2 {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.product-card p {
-  margin-bottom: 1rem;
-}
-
-.product-controls {
-  display: flex;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-
-.product-controls p {
-  margin-right: 20px;
-}
-
-.product-controls button:hover {
-  background-color: #005f8b;
-}
-
-.product-price {
-  font-weight: bold;
-  font-size: 1.2rem;
+button:active {
+  transform: translateY(0);
 }
 
 .quantity-input {
-  width: 50px;
-  height: 30px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
-  margin-right: 10px;
+  width: 72px;
+  height: 38px;
+  border: 1px solid #bec7dd;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.95rem;
 }
 
-.shopping-cart {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.9);
+.price {
+  color: #bb0628;
+  font-weight: 700;
 }
 
-.shopping-cart h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.shopping-cart-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.shopping-cart-table th,
-.shopping-cart-table td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.shopping-cart-table th {
-  font-weight: bold;
-}
-
-.shopping-cart-table td img {
-  display: block;
-  margin: 0 auto;
-}
-
-.checkout-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #007acc;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.checkout-button:hover {
-  background-color: #005f8b;
+@media (max-width: 768px) {
+  .app-content {
+    padding-top: 96px;
+  }
 }
 </style>

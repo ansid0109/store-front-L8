@@ -1,19 +1,16 @@
 <template>
-  <br>
   <div class="product-detail" v-if="productExists">
     <div class="product-image">
-      <img :src="product.image" :alt="product.name" />
+      <img :src="getImageSrc(product.image)" :alt="product.name" @error="onImageError" />
     </div>
     <div class="product-info">
       <h2>{{ product.name }}</h2>
-      <small>Product ID: {{ product.id }}</small>
+      <small class="product-meta">SKU: {{ product.id }}</small>
       <p>{{ product.description }}</p>
       <div class="product-controls">
-        <p>
-          <b>Price: <span class="price">{{ product.price }}</span></b>
-        </p>
+        <p class="price-wrap"><span class="price">${{ Number(product.price).toFixed(2) }}</span></p>
         <input type="number" v-model="quantity" min="1" class="quantity-input" />
-        <button @click="addToCart">Add to Cart</button>
+        <button class="detail-add-button" @click="addToCart">Add to Cart</button>
       </div>
     </div>
   </div>
@@ -47,24 +44,28 @@ export default {
         productId: this.product.id,
         quantity: this.quantity
       })
+    },
+    getImageSrc(imagePath) {
+      return imagePath || '/placeholder.png'
+    },
+    onImageError(event) {
+      event.target.src = '/placeholder.png'
     }
   }
 }
 </script>
 
 <style scoped>
-a {
-  color: #0000FF;
-  text-decoration: underline;
-}
-
 .product-detail {
-  text-align: left;
+  background: #fff;
+  border: 1px solid #dfe5f2;
+  border-radius: 12px;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem;
+  gap: 1.2rem;
+  margin: 0.25rem 0;
+  padding: 1rem;
+  box-shadow: 0 12px 24px rgba(8, 34, 89, 0.1);
 }
 
 .product-image {
@@ -73,7 +74,11 @@ a {
 
 .product-image img {
   width: 100%;
+  max-height: 420px;
   height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #edf1fa;
 }
 
 .product-info {
@@ -82,18 +87,57 @@ a {
 }
 
 .product-info h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+  font-size: 1.6rem;
+  margin: 0;
+  color: #0f2b67;
+}
+
+.product-meta {
+  display: inline-block;
+  margin: 0.4rem 0 0.7rem;
+  color: #68748f;
 }
 
 .product-info p {
-  font-size: 16px;
-  margin-bottom: 20px;
+  font-size: 1rem;
+  margin: 0 0 1rem;
+  color: #4e5a72;
+  line-height: 1.55;
+}
+
+.product-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.price-wrap {
+  margin: 0;
+}
+
+.price-wrap .price {
+  font-size: 1.8rem;
+}
+
+.detail-add-button {
+  min-height: 46px;
+  min-width: 156px;
+  padding: 0 1.2rem;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
   .product-detail {
     flex-direction: column;
+    padding: 0.85rem;
+  }
+
+  .product-info h2 {
+    font-size: 1.35rem;
+  }
+
+  .product-controls {
+    flex-wrap: wrap;
   }
 }
 </style>

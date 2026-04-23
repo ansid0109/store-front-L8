@@ -1,5 +1,9 @@
 <template>
   <div class="shopping-cart" v-if="hasCartItems">
+    <header class="cart-header">
+      <h2>Your Cart</h2>
+      <p>{{ cartItems.length }} item(s)</p>
+    </header>
     <table class="shopping-cart-table">
       <thead>
         <tr>
@@ -20,7 +24,14 @@
         </tr>
       </tbody>
     </table>
-    <button class="checkout-button" @click="submitOrder">Checkout</button>
+
+    <div class="cart-footer">
+      <div class="order-total">
+        <span>Order total</span>
+        <strong>${{ cartGrandTotal }}</strong>
+      </div>
+      <button class="checkout-button" @click="submitOrder">Checkout</button>
+    </div>
   </div>
   <div class="shopping-cart" v-else>
     <h3>Your shopping cart is empty</h3>
@@ -35,6 +46,12 @@ export default {
     hasCartItems() {
       return this.cartItems.length > 0
     },
+    cartGrandTotal() {
+      const total = this.cartItems.reduce((sum, item) => {
+        return sum + item.quantity * item.product.price
+      }, 0)
+      return total.toFixed(2)
+    }
   },
   methods: {
     getItemTotal(item) {
@@ -55,3 +72,96 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.shopping-cart {
+  background: #fff;
+  border: 1px solid #dfe5f2;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 12px 24px rgba(8, 34, 89, 0.1);
+}
+
+.cart-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.cart-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #0f2b67;
+}
+
+.cart-header p {
+  margin: 0;
+  color: #5f6a82;
+}
+
+.shopping-cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.shopping-cart-table th,
+.shopping-cart-table td {
+  border-bottom: 1px solid #e8edf8;
+  text-align: left;
+  padding: 0.7rem 0.55rem;
+}
+
+.shopping-cart-table th {
+  background: #f4f7ff;
+  color: #193773;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.shopping-cart-table tbody tr:hover {
+  background: #f9fbff;
+}
+
+.cart-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.order-total {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #5f6a82;
+}
+
+.order-total strong {
+  color: #0f2b67;
+  font-size: 1.4rem;
+}
+
+.checkout-button {
+  min-height: 42px;
+  min-width: 118px;
+}
+
+@media (max-width: 768px) {
+  .shopping-cart {
+    overflow-x: auto;
+  }
+
+  .shopping-cart-table {
+    min-width: 600px;
+  }
+
+  .cart-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+}
+</style>
